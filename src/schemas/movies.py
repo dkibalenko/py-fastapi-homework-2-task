@@ -1,13 +1,15 @@
+from datetime import date
+
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, PastDate
+from pydantic import BaseModel, ConfigDict
 
 from database.models import MovieStatusEnum
 
 
 class MovieBase(BaseModel):
     name: str
-    date: PastDate
+    date: date
     score: float
     overview: str
     status: MovieStatusEnum
