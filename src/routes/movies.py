@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+
 
 from database import get_db, MovieModel
-from schemas.movies import MovieListResponseSchema
-from crud import get_movie_list, generate_pagination_links
+from schemas import MovieCreateSchema, MovieDetailSchema, MovieListResponseSchema
+from crud import get_movie_list, generate_pagination_links, create_movie
 
 router = APIRouter()
 
@@ -50,3 +50,26 @@ async def read_movies(
         "total_pages": total_pages,
         "total_items": total_items
     }
+
+
+@router.post("/movies/", response_model=MovieDetailSchema, status_code=201)
+async def add_movie(
+    movie: MovieCreateSchema,
+    db_session: AsyncSession=Depends(get_db)
+):
+    """
+    Create a new movie with all related objects.
+    Returns the created movie with all relationships.
+    """
+    try:
+        new_movie = await create_movie(
+            db=db_session,
+            movie=movie
+        )
+    except IntegrityError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail=f"A movie with the name '{movie.name}' and release date "
+            f"'{movie.date}' already exists."
+        )
+    return new_movie
