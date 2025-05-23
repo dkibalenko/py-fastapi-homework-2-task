@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from database.models import MovieModel, Base, CountryModel, GenreModel, ActorModel, LanguageModel
 from schemas.movies import MovieCreateSchema, MovieDetailSchema
@@ -147,14 +147,34 @@ async def create_movie(
         select(MovieModel)
         .options(
             joinedload(MovieModel.country),
-            joinedload(MovieModel.genres),
-            joinedload(MovieModel.actors),
-            joinedload(MovieModel.languages),
+            selectinload(MovieModel.genres),
+            selectinload(MovieModel.actors),
+            selectinload(MovieModel.languages),
         )
         .where(MovieModel.id == db_movie.id)
     )
 
     result = await db.execute(query)
-    movie = result.unique().scalar_one()
+    movie = result.scalar_one_or_none()
 
     return MovieDetailSchema.model_validate(movie)
+
+
+async def get_single_movie(
+    db: AsyncSession,
+    movie_id: int
+) -> MovieModel:
+    """Retrieves a single movie with the given ID and all related objects."""
+    query = (
+        select(MovieModel)
+        .options(
+            joinedload(MovieModel.country),
+            selectinload(MovieModel.genres),
+            selectinload(MovieModel.actors),
+            selectinload(MovieModel.languages),
+        )
+        .where(MovieModel.id == movie_id)
+    )
+    result = await db.execute(query)
+    movie = result.scalar_one_or_none()
+    return movie
