@@ -97,3 +97,25 @@ async def read_single_movie(
         )
 
     return movie
+
+
+@router.delete("/movies/{movie_id}/", status_code=204)
+async def delete_movie(
+    movie_id: int,
+    db_session: AsyncSession=Depends(get_db)
+):
+    """
+    Deletes a specific movie by its unique ID. If the movie with the specified
+    ID does not exist, a 404 Not Found error is raised.
+    """
+
+    movie = await db_session.get(entity=MovieModel, ident=movie_id)
+
+    if not movie:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Movie with the given ID was not found."
+        )
+
+    await db_session.delete(movie)
+    await db_session.commit()
