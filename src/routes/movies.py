@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db, MovieModel
 from schemas import MovieCreateSchema, MovieDetailSchema, MovieListResponseSchema
-from crud import get_movie_list, generate_pagination_links, create_movie
+from crud import get_movie_list, generate_pagination_links, create_movie, get_single_movie
 
 router = APIRouter()
 
@@ -73,3 +73,27 @@ async def add_movie(
             f"'{movie.date}' already exists."
         )
     return new_movie
+
+
+@router.get("/movies/{movie_id}/", response_model=MovieDetailSchema)
+async def read_single_movie(
+    movie_id: int,
+    db_session: AsyncSession=Depends(get_db)
+):
+    """
+    Retrieve detailed information about a specific movie and its related
+    objects by its unique ID.
+    """
+
+    movie = await get_single_movie(
+        db=db_session,
+        movie_id=movie_id
+    )
+
+    if not movie:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Movie with the given ID was not found."
+        )
+
+    return movie
