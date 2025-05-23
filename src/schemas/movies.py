@@ -16,6 +16,7 @@ from database.models import MovieStatusEnum
 
 
 class CountrySchema(BaseModel):
+    id: int
     code: str
     name: Optional[str]
 
@@ -23,18 +24,21 @@ class CountrySchema(BaseModel):
 
 
 class GenreSchema(BaseModel):
+    id: int
     name: str
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ActorSchema(BaseModel):
+    id: int
     name: str
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class LanguageSchema(BaseModel):
+    id: int
     name: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -82,7 +86,7 @@ class MovieDetailSchema(BaseModel):
     score: float
     overview: str
     status: MovieStatusEnum
-    budget: Decimal
+    budget: float
     revenue: float
     country: CountrySchema
     languages: list[LanguageSchema]
