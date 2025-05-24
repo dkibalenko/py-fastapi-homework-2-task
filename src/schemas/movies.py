@@ -105,6 +105,10 @@ class MoviePartialUpdateSchema(BaseModel):
     revenue: Annotated[Optional[float], Field(ge=0, default=None)]
 
 
+class MoviePartialUpdateSuccessSchema(BaseModel):
+    detail: str
+
+
 class MovieListItemSchema(BaseModel):
     id: int
     name: str

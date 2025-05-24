@@ -3,5 +3,6 @@ from schemas.movies import (
     MovieListResponseSchema,
     MovieListItemSchema,
     MovieCreateSchema,
-    MoviePartialUpdateSchema
+    MoviePartialUpdateSchema,
+    MoviePartialUpdateSuccessSchema
 )
