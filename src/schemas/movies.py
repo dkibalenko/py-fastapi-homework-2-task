@@ -101,7 +101,7 @@ class MoviePartialUpdateSchema(BaseModel):
     score: Annotated[Optional[float], Field(ge=0, le=100, default=None)]
     overview: Optional[str] = None
     status: Optional[MovieStatusEnum] = None
-    budget: Annotated[Optional[Decimal], Field(ge=0, default=None)]
+    budget: Annotated[Optional[float], Field(ge=0, default=None)]
     revenue: Annotated[Optional[float], Field(ge=0, default=None)]
 
 
