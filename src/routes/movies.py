@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
@@ -20,6 +21,15 @@ from crud import (
 )
 
 router = APIRouter()
+
+async def common_parameters(
+    movie_id: int,
+    db_session: AsyncSession = Depends(get_db)
+):
+    return {"movie_id": movie_id, "db_session": db_session}
+
+
+CommonsDep = Annotated[dict, Depends(common_parameters)]
 
 
 @router.get("/movies/", response_model=MovieListResponseSchema)
@@ -87,18 +97,15 @@ async def add_movie(
 
 
 @router.get("/movies/{movie_id}/", response_model=MovieDetailSchema)
-async def read_single_movie(
-    movie_id: int,
-    db_session: AsyncSession = Depends(get_db)
-):
+async def read_single_movie(commons: CommonsDep):
     """
     Retrieve detailed information about a specific movie and its related
     objects by its unique ID.
     """
 
     movie = await get_single_movie(
-        db=db_session,
-        movie_id=movie_id
+        db=commons["db_session"],
+        movie_id=commons["movie_id"]
     )
 
     if not movie:
@@ -111,16 +118,16 @@ async def read_single_movie(
 
 
 @router.delete("/movies/{movie_id}/", status_code=204)
-async def delete_movie(
-    movie_id: int,
-    db_session: AsyncSession = Depends(get_db)
-):
+async def delete_movie(commons: CommonsDep):
     """
     Deletes a specific movie by its unique ID. If the movie with the specified
     ID does not exist, a 404 Not Found error is raised.
     """
 
-    movie = await db_session.get(entity=MovieModel, ident=movie_id)
+    movie = await commons["db_session"].get(
+        entity=MovieModel,
+        ident=commons["movie_id"]
+    )
 
     if not movie:
         raise HTTPException(
@@ -128,15 +135,14 @@ async def delete_movie(
             detail="Movie with the given ID was not found."
         )
 
-    await db_session.delete(movie)
-    await db_session.commit()
+    await commons["db_session"].delete(movie)
+    await commons["db_session"].commit()
 
 
 @router.patch("/movies/{movie_id}/")
 async def update_movie_partial(
-    movie_id: int,
-    movie: MoviePartialUpdateSchema,
-    db_session: AsyncSession = Depends(get_db)
+    commons: CommonsDep,
+    movie: MoviePartialUpdateSchema
 ):
     """
     Partially updates a movie with the given ID.
@@ -144,8 +150,8 @@ async def update_movie_partial(
     with the given ID does not exist.
     """
     movie = await partial_update_movie(
-        db=db_session,
-        movie_id=movie_id,
+        db=commons["db_session"],
+        movie_id=commons["movie_id"],
         movie=movie
     )
 
