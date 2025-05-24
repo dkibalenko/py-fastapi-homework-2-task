@@ -50,7 +50,7 @@ class MovieCreateSchema(BaseModel):
     score: float = Field(ge=0, le=100)
     overview: str
     status: MovieStatusEnum
-    budget: Decimal = Field(ge=0)
+    budget: float = Field(ge=0)
     revenue: float = Field(ge=0)
     country: str
     genres: list[str]
