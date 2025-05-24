@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from database import get_db, MovieModel
-from schemas import MovieCreateSchema, MovieDetailSchema, MovieListResponseSchema
-from crud import get_movie_list, generate_pagination_links, create_movie, get_single_movie
+from schemas import MovieCreateSchema, MovieDetailSchema, MovieListResponseSchema, MoviePartialUpdateSchema
+from crud import get_movie_list, generate_pagination_links, create_movie, get_single_movie, partial_update_movie
 
 router = APIRouter()
 
@@ -119,3 +119,25 @@ async def delete_movie(
 
     await db_session.delete(movie)
     await db_session.commit()
+
+
+@router.patch("/movies/{movie_id}/")
+async def update_movie_partial(
+    movie_id: int,
+    movie: MoviePartialUpdateSchema,
+    db_session: AsyncSession=Depends(get_db)
+):
+    """
+    Partially updates a movie with the given ID.
+    Returns a success message, or a 404 Not Found error if the movie
+    with the given ID does not exist.
+    """
+    movie = await partial_update_movie(
+        db=db_session,
+        movie_id=movie_id,
+        movie=movie
+    )
+
+    return {
+        "detail": "Movie updated successfully."
+    }
