@@ -84,14 +84,15 @@ async def get_list_of_related_objects(
     related_model_names: list[str]
 ) -> list[Base]:
     """Create a list of related objects."""
-    related_objects = [
-        await get_or_create_related_object(
+    related_objects = []
+
+    for name in related_model_names:
+        related_object = await get_or_create_related_object(
             db=db,
             model=model,
             related_model_name=name
         )
-        for name in related_model_names
-    ]
+        related_objects.append(related_object)
 
     return related_objects
 
