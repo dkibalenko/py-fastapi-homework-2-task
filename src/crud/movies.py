@@ -1,9 +1,10 @@
-from sqlalchemy import select
+from fastapi import HTTPException
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
 from database.models import MovieModel, Base, CountryModel, GenreModel, ActorModel, LanguageModel
-from schemas.movies import MovieCreateSchema, MovieDetailSchema
+from schemas.movies import MovieCreateSchema, MovieDetailSchema, MoviePartialUpdateSchema
 
 
 def generate_pagination_links(
@@ -178,3 +179,34 @@ async def get_single_movie(
     result = await db.execute(query)
     movie = result.scalar_one_or_none()
     return movie
+
+async def partial_update_movie(
+    db: AsyncSession,
+    movie_id: int,
+    movie: MoviePartialUpdateSchema
+) -> MovieModel:
+    """
+    Partially updates a movie with the given ID.
+    """
+    movie_being_updated = await db.get(entity=MovieModel, ident=movie_id)
+
+    if not movie_being_updated:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Movie with the given ID was not found."
+        )
+
+    update_data = movie.model_dump(exclude_unset=True)
+
+
+    update_query = (
+        update(MovieModel)
+        .where(MovieModel.id == movie_id)
+        .values(**update_data)
+    )
+
+    await db.execute(update_query)
+    await db.commit()
+    await db.refresh(movie_being_updated)
+
+    return movie_being_updated
