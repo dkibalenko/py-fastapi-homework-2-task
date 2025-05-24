@@ -66,12 +66,12 @@ class MovieCreateSchema(BaseModel):
         return value
 
     @field_validator("country")
-    def validate_country_iso_alpha3_code(cls, value):
-        alpha3_codes = [country.alpha_3 for country in pycountry.countries]
+    def validate_country_iso_alpha2_code(cls, value):
+        alpha2_codes = [country.alpha_2 for country in pycountry.countries]
 
-        if value not in alpha3_codes:
+        if value not in alpha2_codes:
             raise ValueError(
-                "Country code must be 'ISO 3166-1 alpha-3' format"
+                "Country code must be 'ISO 3166-1 alpha-2' format"
             )
         return value
 
