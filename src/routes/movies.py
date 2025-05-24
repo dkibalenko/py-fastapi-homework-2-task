@@ -22,6 +22,7 @@ from crud import (
 
 router = APIRouter()
 
+
 async def common_parameters(
     movie_id: int,
     db_session: AsyncSession = Depends(get_db)
