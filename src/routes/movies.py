@@ -10,7 +10,8 @@ from schemas import (
     MovieCreateSchema,
     MovieDetailSchema,
     MovieListResponseSchema,
-    MoviePartialUpdateSchema
+    MoviePartialUpdateSchema,
+    MoviePartialUpdateSuccessSchema
 )
 from crud import (
     get_movie_list,
@@ -140,7 +141,10 @@ async def delete_movie(commons: CommonsDep):
     await commons["db_session"].commit()
 
 
-@router.patch("/movies/{movie_id}/")
+@router.patch(
+    "/movies/{movie_id}/",
+    response_model=MoviePartialUpdateSuccessSchema
+)
 async def update_movie_partial(
     commons: CommonsDep,
     movie: MoviePartialUpdateSchema
@@ -156,6 +160,6 @@ async def update_movie_partial(
         movie=movie
     )
 
-    return {
-        "detail": "Movie updated successfully."
-    }
+    return MoviePartialUpdateSuccessSchema(
+        detail="Movie updated successfully."
+    )
