@@ -5,8 +5,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from database import get_db, MovieModel
-from schemas import MovieCreateSchema, MovieDetailSchema, MovieListResponseSchema, MoviePartialUpdateSchema
-from crud import get_movie_list, generate_pagination_links, create_movie, get_single_movie, partial_update_movie
+from schemas import (
+    MovieCreateSchema,
+    MovieDetailSchema,
+    MovieListResponseSchema,
+    MoviePartialUpdateSchema
+)
+from crud import (
+    get_movie_list,
+    generate_pagination_links,
+    create_movie,
+    get_single_movie,
+    partial_update_movie
+)
 
 router = APIRouter()
 
@@ -55,7 +66,7 @@ async def read_movies(
 @router.post("/movies/", response_model=MovieDetailSchema, status_code=201)
 async def add_movie(
     movie: MovieCreateSchema,
-    db_session: AsyncSession=Depends(get_db)
+    db_session: AsyncSession = Depends(get_db)
 ):
     """
     Create a new movie with all related objects.
@@ -66,7 +77,7 @@ async def add_movie(
             db=db_session,
             movie=movie
         )
-    except IntegrityError as exc:
+    except IntegrityError:
         raise HTTPException(
             status_code=409,
             detail=f"A movie with the name '{movie.name}' and release date "
@@ -78,7 +89,7 @@ async def add_movie(
 @router.get("/movies/{movie_id}/", response_model=MovieDetailSchema)
 async def read_single_movie(
     movie_id: int,
-    db_session: AsyncSession=Depends(get_db)
+    db_session: AsyncSession = Depends(get_db)
 ):
     """
     Retrieve detailed information about a specific movie and its related
@@ -93,7 +104,7 @@ async def read_single_movie(
     if not movie:
         raise HTTPException(
             status_code=404,
-            detail=f"Movie with the given ID was not found."
+            detail="Movie with the given ID was not found."
         )
 
     return movie
@@ -102,7 +113,7 @@ async def read_single_movie(
 @router.delete("/movies/{movie_id}/", status_code=204)
 async def delete_movie(
     movie_id: int,
-    db_session: AsyncSession=Depends(get_db)
+    db_session: AsyncSession = Depends(get_db)
 ):
     """
     Deletes a specific movie by its unique ID. If the movie with the specified
@@ -114,7 +125,7 @@ async def delete_movie(
     if not movie:
         raise HTTPException(
             status_code=404,
-            detail=f"Movie with the given ID was not found."
+            detail="Movie with the given ID was not found."
         )
 
     await db_session.delete(movie)
@@ -125,7 +136,7 @@ async def delete_movie(
 async def update_movie_partial(
     movie_id: int,
     movie: MoviePartialUpdateSchema,
-    db_session: AsyncSession=Depends(get_db)
+    db_session: AsyncSession = Depends(get_db)
 ):
     """
     Partially updates a movie with the given ID.

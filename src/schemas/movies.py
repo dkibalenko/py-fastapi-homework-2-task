@@ -75,7 +75,6 @@ class MovieCreateSchema(BaseModel):
             )
         return value
 
-
     model_config = ConfigDict(from_attributes=True)
 
 

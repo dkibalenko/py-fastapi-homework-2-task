@@ -12,7 +12,7 @@ def generate_pagination_links(
     page: int,
     per_page: int
 ) -> dict[str, str]:
-    
+
     base_url = "/theater/movies/"
     prev_page = (
         f"{base_url}?page={page - 1}&per_page={per_page}"
@@ -44,7 +44,7 @@ async def get_movie_list(
         .limit(per_page)
     )
     result = await db.execute(query)
-    
+
     movies = result.scalars().all()
 
     return movies
@@ -80,7 +80,7 @@ async def get_or_create_related_object(
 
 async def get_list_of_related_objects(
     db: AsyncSession,
-    model: Base, 
+    model: Base,
     related_model_names: list[str]
 ) -> list[Base]:
     """Create a list of related objects."""
@@ -143,7 +143,7 @@ async def create_movie(
         db.add(db_movie)
         await db.flush()
         await db.refresh(db_movie)
-    
+
     query = (
         select(MovieModel)
         .options(
@@ -180,6 +180,7 @@ async def get_single_movie(
     movie = result.scalar_one_or_none()
     return movie
 
+
 async def partial_update_movie(
     db: AsyncSession,
     movie_id: int,
@@ -193,11 +194,10 @@ async def partial_update_movie(
     if not movie_being_updated:
         raise HTTPException(
             status_code=404,
-            detail=f"Movie with the given ID was not found."
+            detail="Movie with the given ID was not found."
         )
 
     update_data = movie.model_dump(exclude_unset=True)
-
 
     update_query = (
         update(MovieModel)
