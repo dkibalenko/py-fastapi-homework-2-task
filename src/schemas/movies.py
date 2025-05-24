@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Annotated, Optional
 
 from datetime import date, timedelta
 
@@ -94,6 +94,16 @@ class MovieDetailSchema(BaseModel):
     actors: list[ActorSchema]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MoviePartialUpdateSchema(BaseModel):
+    name: Annotated[Optional[str], Field(max_length=255, default=None)]
+    date: Annotated[Optional[date], Field(default=None)]
+    score: Annotated[Optional[float], Field(ge=0, le=100, default=None)]
+    overview: Optional[str] = None
+    status: Optional[MovieStatusEnum] = None
+    budget: Annotated[Optional[Decimal], Field(ge=0, default=None)]
+    revenue: Annotated[Optional[float], Field(ge=0, default=None)]
 
 
 class MovieListItemSchema(BaseModel):
